@@ -10,7 +10,7 @@ plugins {
 }
 
 //Build variables
-version = "3.1.0"
+version = "3.1.1"
 group = "de.erdbeerbaerlp.dcintegration.common"
 archivesBaseName = "dcintegration-core"
 
@@ -83,7 +83,7 @@ dependencies {
 
     //Minecraft <==> Discord conversion
     embed 'net.kyori:adventure-api:4.16.0'
-    embed('net.kyori:adventure-text-serializer-gson:4.15.0'){
+    embed('net.kyori:adventure-text-serializer-gson:4.15.0') {
         exclude group: 'com.google.code.gson', module: 'gson'
     }
     embed "dev.vankka:mcdiscordreserializer:4.3.0"
@@ -104,7 +104,6 @@ dependencies {
 
     //Logger
     compileOnly group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.23.1'
-
 
 
     //Testing
@@ -153,26 +152,26 @@ artifacts {
     archives tasks.shadowJar
 }
 publishing {
- if (project.hasProperty('nexusUser')) { // $GRADLE_USER_HOME/gradle.properties
-    publications {
-        maven(MavenPublication) {
-            groupId = 'de.erdbeerbaerlp'
-            artifactId = 'dcintegration.common'
-            from components.java
-        }
-    }
-    repositories {
-        maven {
-            credentials {// $GRADLE_USER_HOME/gradle.properties
-                username = project.nexusUser
-                password = project.nexusPass
-            }
-            if(project.version.endsWith('-SNAPSHOT')) {
-                url = "https://repo.erdbeerbaerlp.de/repository/maven-snapshots"
-            }else{
-                url = "https://repo.erdbeerbaerlp.de/repository/maven-releases"
+    if (project.hasProperty('nexusUser')) { // $GRADLE_USER_HOME/gradle.properties
+        publications {
+            maven(MavenPublication) {
+                groupId = 'de.erdbeerbaerlp'
+                artifactId = 'dcintegration.common'
+                from components.java
             }
         }
-    }
+        repositories {
+            maven {
+                credentials {// $GRADLE_USER_HOME/gradle.properties
+                    username = project.nexusUser
+                    password = project.nexusPass
+                }
+                if (project.version.endsWith('-SNAPSHOT')) {
+                    url = "https://repo.erdbeerbaerlp.de/repository/maven-snapshots"
+                } else {
+                    url = "https://repo.erdbeerbaerlp.de/repository/maven-releases"
+                }
+            }
+        }
     }
 }

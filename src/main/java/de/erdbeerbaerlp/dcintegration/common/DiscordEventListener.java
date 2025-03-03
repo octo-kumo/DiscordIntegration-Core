@@ -10,10 +10,7 @@ import de.erdbeerbaerlp.dcintegration.common.util.MessageUtils;
 import de.erdbeerbaerlp.dcintegration.common.util.TextColors;
 import dev.vankka.mcdiscordreserializer.minecraft.MinecraftSerializer;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import net.dv8tion.jda.api.entities.sticker.Sticker;
@@ -23,6 +20,7 @@ import net.dv8tion.jda.api.events.guild.member.GuildMemberUpdateEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
+import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
 import net.kyori.adventure.text.Component;
@@ -46,6 +44,14 @@ class DiscordEventListener implements EventListener {
         final DiscordIntegration dc = DiscordIntegration.INSTANCE;
         final JDA jda = dc.getJDA();
         if (jda == null) return;
+
+        if (event instanceof ReadyEvent) {
+            final Guild guild = jda.getGuilds().get(0);
+            if (guild != null) {
+                DiscordIntegration.emojiCache.clear();
+                guild.getEmojis().forEach(e -> DiscordIntegration.emojiCache.put(e.getName().toLowerCase(), e));
+            }
+        }
 
         if (event instanceof GuildMemberUpdateEvent) {
             final GuildMemberUpdateEvent ev = (GuildMemberUpdateEvent) event;
@@ -93,7 +99,7 @@ class DiscordEventListener implements EventListener {
             if (Localization.instance().ingame_discordMessage.isEmpty()) return;
             final MessageReceivedEvent ev = (MessageReceivedEvent) event;
             if (!Configuration.instance().general.allowWebhookMessages && ev.isWebhookMessage()) return;
-            if(ev.isWebhookMessage()){
+            if (ev.isWebhookMessage()) {
                 // Hacky way to lower risk of duplicate webhook messages
                 try {
                     Thread.sleep(Configuration.instance().advanced.webhookMessageDelay);

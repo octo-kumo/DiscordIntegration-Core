@@ -82,7 +82,7 @@ public class MessageUtils {
         if (Configuration.instance().linking.enableLinking && LinkManager.isPlayerLinked(p)) {
             final PlayerLink link = LinkManager.getLink(null, p);
             if (link.settings.useDiscordNameInChannel) {
-                return DiscordIntegration.INSTANCE.getChannel().getGuild().getMemberById(LinkManager.getLink(null,p).discordID).getEffectiveName();
+                return DiscordIntegration.INSTANCE.getChannel().getGuild().getMemberById(LinkManager.getLink(null, p).discordID).getEffectiveName();
             }
         }
         return null;
@@ -96,7 +96,7 @@ public class MessageUtils {
      */
 
     public static String escapeMarkdown(String in) {
-        return in.replace("(?<!\\\\)[`*_|~]/g", "\\\\$0");
+        return in.replaceAll("(?<!\\\\)[`*_|~]", "\\\\$0");
     }
 
     /**
@@ -107,7 +107,19 @@ public class MessageUtils {
      */
 
     public static String escapeMarkdownCodeBlocks(String in) {
-        return in.replace("(?<!\\\\)`/g", "\\\\$0");
+        return in.replaceAll("(?<!\\\\)`", "\\\\$0");
+    }
+
+    private static final Pattern emojiPatter = Pattern.compile(":([_A-Za-z0-9]+):");
+
+    public static String replaceEmotes(String in) {
+        return emojiPatter.matcher(in).replaceAll(matcher -> {
+            if (DiscordIntegration.emojiCache.containsKey(matcher.group(1))) {
+                return DiscordIntegration.emojiCache.get(matcher.group(1)).getFormatted();
+            } else {
+                return matcher.group();
+            }
+        });
     }
 
     /**
@@ -133,6 +145,7 @@ public class MessageUtils {
 
     public static String convertMCToMarkdown(String in) {
         in = escapeMarkdownCodeBlocks(in);
+        in = replaceEmotes(in);
         try {
             return DiscordSerializer.INSTANCE.serialize(LegacyComponentSerializer.legacySection().deserialize(in));
         } catch (NullPointerException | ConcurrentModificationException ex) {

@@ -39,6 +39,7 @@ import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.exceptions.InvalidTokenException;
 import net.dv8tion.jda.api.exceptions.PermissionException;
@@ -166,6 +167,7 @@ public class DiscordIntegration {
      * Cache of members so that they don't need to be fetched every single time
      */
     static final Map<Long, Member> memberCache = new HashMap<>();
+    public static final Map<String, Emoji> emojiCache = new HashMap<>();
     /**
      * Instance of the default event listener
      */
@@ -193,7 +195,7 @@ public class DiscordIntegration {
 
 
     public DiscordIntegration(final McServerInterface serverInterface) {
-        System.setProperty("http.agent", "Discord Integration/"+VERSION+" (https://github.com/ErdbeerbaerLP/DiscordIntegration-Core)");
+        System.setProperty("http.agent", "Discord Integration/" + VERSION + " (https://github.com/ErdbeerbaerLP/DiscordIntegration-Core)");
         this.serverInterface = serverInterface;
         try {
             loadConfigs();
@@ -947,15 +949,15 @@ public class DiscordIntegration {
                         builder.setAvatarUrl(avatarURL);
                         final JDAWebhookClient webhookCli = getWebhookCli(channel.getId());
                         if (webhookCli != null) {
-                            webhookCli.send(builder.build()).thenAccept((a)-> rememberRecentMessage(a.getId(),  uuid.equals("0000000")?null:UUID.fromString(uuid)));
+                            webhookCli.send(builder.build()).thenAccept((a) -> rememberRecentMessage(a.getId(), uuid.equals("0000000") ? null : UUID.fromString(uuid)));
                         }
                     });
                 } else if (isChatMessage) {
                     message.setMessage(Localization.instance().discordChatMessage.replace("%player%", name).replace("%msg%", message.getMessage()));
                     message.setIsChatMessage();
-                    channel.sendMessage(message.buildMessages()).submit().thenAccept((a) -> rememberRecentMessage(a.getIdLong(), uuid.equals("0000000")?null:UUID.fromString(uuid)));
+                    channel.sendMessage(message.buildMessages()).submit().thenAccept((a) -> rememberRecentMessage(a.getIdLong(), uuid.equals("0000000") ? null : UUID.fromString(uuid)));
                 } else {
-                    channel.sendMessage(message.buildMessages()).submit().thenAccept((a) -> rememberRecentMessage(a.getIdLong(), uuid.equals("0000000")?null:UUID.fromString(uuid)));
+                    channel.sendMessage(message.buildMessages()).submit().thenAccept((a) -> rememberRecentMessage(a.getIdLong(), uuid.equals("0000000") ? null : UUID.fromString(uuid)));
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -1075,7 +1077,7 @@ public class DiscordIntegration {
     /**
      * Gets the skin url currently in use
      */
-    public String getSkinURL(){
+    public String getSkinURL() {
         return apiTest.getSkinURL();
     }
 }
